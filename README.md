@@ -1,5 +1,5 @@
-Simple Selenium Set up in  Docker Wwarm:
----------------------------------------
+Simple Selenium Set up in  Docker Swarm Cluster:
+-----------------------------------------------
 
 Initializing the Manager Node and run this command on one of the hosts for Docker Swarm mode on the same,
 
