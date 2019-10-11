@@ -1,0 +1,49 @@
+version: '3.6'
+services:
+  hub:
+    image: selenium/hub:3.141.59-copernicium
+    ports:
+      - 4444:4444
+    deploy:
+      mode: replicated
+      replicas: 1
+      labels:
+        selenium.grid.type: "hub"
+        selenium.grid.hub: "true"
+      restart_policy:
+        condition: "none"
+      placement:
+        constraints:
+          - node.role == worker
+    environment:
+      - GRID_TIMEOUT=600
+      - GRID_BROWSER_TIMEOUT=100000
+      - GRID_NEW_SESSION_WAIT_TIMEOUT=1800000
+      - GRID_CLEAN_UP_CYCLE=180000
+
+  chrome:
+    image: selenium/node-chrome:3.141.59-copernicium
+    volumes:
+      - /dev/urandom:/dev/random
+      - /dev/shm:/dev/shm
+    depends_on:
+      - hub
+    environment:
+      - HUB_PORT_4444_TCP_ADDR=hub
+      - HUB_PORT_4444_TCP_PORT=4444
+      - NODE_MAX_SESSION=1
+      - NODE_MAX_INSTANCES=2
+    entrypoint: bash -c 'SE_OPTS="-host $$HOSTNAME -port 5555" /opt/bin/entry_point.sh'
+    ports:
+      - 5555:5555
+    deploy:
+      replicas: 1
+      labels:
+        selenium.grid.type: "node"
+        selenium.grid.node: "true"
+        selenium.grid.node.type: "chrome"
+      restart_policy:
+        condition: "none"
+      placement:
+        constraints:
+          - node.role == worker
